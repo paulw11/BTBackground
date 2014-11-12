@@ -111,8 +111,8 @@
     self.connectedPeripheral=peripheral;
     NSLog(@"Connected to %@(%@)",peripheral.name,peripheral.identifier.UUIDString);
     peripheral.delegate=self;
-
     [peripheral discoverServices:@[self.deviceInfoUUID]];
+    
 }
 
 -(void) centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -151,6 +151,16 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.manfLabel.text=manf;
     });
+    UIApplication *app=[UIApplication sharedApplication];
+    if (app.applicationState == UIApplicationStateBackground) {
+        NSLog(@"We are in the background");
+        UIUserNotificationSettings *notifySettings=[[UIApplication sharedApplication] currentUserNotificationSettings];
+        if ((notifySettings.types & UIUserNotificationTypeAlert)!=0) {
+            UILocalNotification *notification=[UILocalNotification new];
+            notification.alertBody=[NSString stringWithFormat:@"Connected to peripheral from %@",manf];
+            [app presentLocalNotificationNow:notification];
+        }
+    }
     
 }
 
