@@ -120,6 +120,16 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.manfLabel.text=@"Not connected";
     });
+    UIApplication *app=[UIApplication sharedApplication];
+    if (app.applicationState == UIApplicationStateBackground) {
+        NSLog(@"We are in the background");
+        UIUserNotificationSettings *notifySettings=[[UIApplication sharedApplication] currentUserNotificationSettings];
+        if ((notifySettings.types & UIUserNotificationTypeAlert)!=0) {
+            UILocalNotification *notification=[UILocalNotification new];
+            notification.alertBody=@"Disconnected";
+            [app presentLocalNotificationNow:notification];
+        }
+    }
     if ([self.targetPeripheral isEqualToString:peripheral.identifier.UUIDString]) {
         NSLog(@"Retrying");
         [self.central connectPeripheral:peripheral options:nil];
